@@ -6,47 +6,58 @@ type Props = {
   title?: string;
   description?: string;
   noindex?: boolean;
-  og?: {
-    title: string;
-    type: string;
-    description: string;
-    image: string;
-    alt: string;
-  };
 };
 
-const { title, description, noindex, og } = Astro.props;
+const { title, description, noindex } = Astro.props;
 
-const DEFAULT_TITLE_PAGE = "Aarham Haider";
-const DEFAULT_DESCRIPTION_PAGE =
-  "Aarham Haider is a software engineer in Vancouver building billing platforms, test infrastructure, and LLM agent pipelines.";
-const DEFAULT_URL_SITE = SITE_URL;
+const SITE_NAME = "Aarham Haider";
+const DEFAULT_DESCRIPTION =
+  "Software engineer in Vancouver building billing platforms, test infrastructure, and LLM agent pipelines. Interested in backend, distributed systems, AI/ML, and databases.";
 
-const openGraph = {
-  title: og?.title || DEFAULT_TITLE_PAGE,
-  type: og?.type || "website",
-  image: og?.image || "/opengraph-image.jpg",
-  alt: og?.alt || "Aarham Haider",
-  url: DEFAULT_URL_SITE,
-  description: og?.description || DEFAULT_DESCRIPTION_PAGE,
+// Link previews (iMessage, Discord, Slack, LinkedIn) need absolute URLs.
+const pageTitle = title || SITE_NAME;
+const pageDescription = description || DEFAULT_DESCRIPTION;
+const pageUrl = new URL(Astro.url.pathname, SITE_URL).href;
+const image = {
+  url: new URL("/og-image.png", SITE_URL).href,
+  width: 1200,
+  height: 630,
+  alt: "Aarham Haider, software engineer in Vancouver, with chalk doodles of backend, distributed systems, AI/ML, and databases.",
 };
 ---
 
 <head>
   <SEO
     charset="UTF-8"
-    title={title || DEFAULT_TITLE_PAGE}
-    description={description || DEFAULT_DESCRIPTION_PAGE}
+    title={pageTitle}
+    description={pageDescription}
+    canonical={pageUrl}
     noindex={noindex || false}
     openGraph={{
       basic: {
-        title: openGraph.title,
-        type: openGraph.type,
-        image: openGraph.image,
+        title: pageTitle,
+        type: "website",
+        image: image.url,
+        url: pageUrl,
+      },
+      optional: {
+        description: pageDescription,
+        siteName: SITE_NAME,
+        locale: "en_CA",
       },
       image: {
-        alt: openGraph.alt,
+        type: "image/png",
+        width: image.width,
+        height: image.height,
+        alt: image.alt,
       },
+    }}
+    twitter={{
+      card: "summary_large_image",
+      title: pageTitle,
+      description: pageDescription,
+      image: image.url,
+      imageAlt: image.alt,
     }}
     extend={{
       link: [
@@ -56,13 +67,7 @@ const openGraph = {
       meta: [
         { name: "viewport", content: "width=device-width, initial-scale=1" },
         { name: "generator", content: Astro.generator },
-        {
-          name: "twitter:image",
-          content: openGraph.image,
-        },
-        { name: "twitter:card", content: "summary_large_image" },
-        { name: "twitter:title", content: openGraph.title },
-        { name: "twitter:description", content: openGraph.description },
+        { name: "theme-color", content: "#0b0b0c" },
       ],
     }}
   />
