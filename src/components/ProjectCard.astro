@@ -36,6 +36,9 @@ const tilt = [-1.4, 1.1, 0.8, -1][index % 4];
     {note && <p class="note">{note}</p>}
     {summary && <p class="summary">{summary}</p>}
     <div class="techs"><TechList items={techs} label="Built with" /></div>
+    <a class="repo" href={link} target="_blank" rel="noreferrer">
+      view on github &rarr;<span class="visually-hidden"> {title} repository (opens in a new tab)</span>
+    </a>
   </div>
 </article>
 
@@ -46,8 +49,7 @@ const tilt = [-1.4, 1.1, 0.8, -1][index % 4];
     transition: transform 300ms var(--draw-ease);
   }
 
-  .card:hover,
-  .card:focus-within {
+  .card:hover {
     transform: rotate(0deg);
   }
 
@@ -119,29 +121,14 @@ const tilt = [-1.4, 1.1, 0.8, -1][index % 4];
     font-size: var(--text-xl);
   }
 
-  /* The title link covers the whole card so the photo is clickable too. */
-  h3 a {
-    background: none;
-    padding: 0;
-  }
-
-  h3 a::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-  }
-
-  h3 a:focus-visible {
-    outline: none;
-  }
-
-  .card:has(a:focus-visible) {
-    outline: 2px dashed var(--color-accent);
-    outline-offset: 8px;
-  }
-
-  .card:hover h3 a {
-    color: var(--color-accent);
+  /* Only the title and the "view on github" link open the repo; the rest of the card is inert,
+     so taps and scrolls on a phone don't navigate away. */
+  .repo {
+    justify-self: start;
+    margin-top: var(--space-3);
+    font-family: var(--font-script);
+    font-size: var(--text-lg);
+    font-weight: 700;
   }
 
   .year {
