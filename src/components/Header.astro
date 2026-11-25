@@ -1,53 +1,91 @@
 ---
 import removeTrailingSlash from "@/utils/removeTrailingSlash";
 import presentation from "@/data/presentation";
-import logo from "../content/images/logo.png"
-import Resume from "../content/resume/Aarham-Haider-Resume.pdf"
+import ThemeToggle from "./ThemeToggle.astro";
+
 const pathname = removeTrailingSlash(Astro.url.pathname);
+
+const links = [
+  { label: "home", href: "/", current: pathname === "/" },
+  { label: "projects", href: "/posts", current: pathname === "/posts" },
+];
 ---
 
-<div class="flex items-center gap-4">
-  <a href="/">
-    <img class="w-8 h-4 md:w-7 h-7" src={logo}/>
+<header class="container site-header">
+  <a class="brand" href="/">
+    <img src="/logo.png" width="34" height="34" alt="" />
+    <span>{presentation.name.toLowerCase()}</span>
   </a>
-  <header class="z-40 flex w-full flex-col gap-2 md:flex-row md:justify-between">
-    <a href={`mailto:${presentation.mail}`} class="hover:text-neutral-100 "
-      >{presentation.mail}</a
-    >
+  <nav aria-label="Primary">
+    <ul role="list">
+      {
+        links.map((link) => (
+          <li>
+            <a href={link.href} class:list={{ current: link.current }} aria-current={link.current ? "page" : undefined}>
+              {link.label}
+            </a>
+          </li>
+        ))
+      }
+      <li>
+        <a href={presentation.resume} target="_blank" rel="noreferrer">
+          résumé<span class="visually-hidden"> (opens in a new tab)</span>
+        </a>
+      </li>
+      <li class="toggle-item">
+        <ThemeToggle />
+      </li>
+    </ul>
+  </nav>
+</header>
 
-    <nav role="navigation">
-      <ul role="list" class="flex flex-row gap-2">
-        <li>
-          <a
-            href="/"
-            class:list={{
-              ["hover:text-neutral-100"]: true,
-              ["text-rose-400"]: pathname === "/",
-            }}>(home)</a
-          >
-        </li>
-        <li>/</li>
-        <li>
-          <a
-            href="/posts"
-            class:list={{
-              ["hover:text-neutral-100"]: true,
-              ["text-rose-400"]: pathname === "/posts",
-            }}>(projects)</a
-          >
-        </li>
-        <li>/</li>
-        <li>
-          <a
-            href={"https://docsend.com/v/ywyxn/aarham-haider-resume"}
-            target="_blank"
-            class:list={{
-              ["hover:text-neutral-100"]: true,
-            }}>(resume)</a
-          >
-          
-        </li>
-      </ul>
-    </nav>
-  </header>
-</div>
+<style>
+  .site-header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-2) var(--space-5);
+    padding-block: var(--space-6);
+  }
+
+  .brand {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-3);
+    background: none;
+    padding: 0;
+    font-family: var(--font-script);
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--color-chalk);
+  }
+
+  .brand img {
+    width: 34px;
+    height: 34px;
+  }
+
+  ul {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-1) var(--space-5);
+    padding: 0;
+    list-style: none;
+  }
+
+  nav a {
+    font-family: var(--font-script);
+    font-size: 1.5rem;
+    color: var(--color-muted);
+    background-size: 0 6px;
+    transition: color 150ms ease, background-size 300ms var(--draw-ease);
+  }
+
+  nav a:hover,
+  nav a.current {
+    color: var(--color-chalk);
+    background-size: 24px 6px;
+  }
+</style>

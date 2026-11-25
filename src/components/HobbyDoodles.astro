@@ -1,0 +1,423 @@
+---
+import { circlePath, linePath, rectPath } from "@/utils/rough";
+
+// White keys of the little keyboard, and which gaps get a black key.
+const whiteKeys = [1, 2, 3, 4, 5, 6];
+const blackKeys = [1, 2, 4, 5];
+const keyWidth = 120 / 7;
+
+// Pixel heart for the games corner: one string per row, "x" is a filled square.
+const heart = [".xx.xx.", "xxxxxxx", "xxxxxxx", ".xxxxx.", "..xxx..", "...x..."];
+
+// Smaller doodles scattered in the gaps (percent positions within the field).
+const extras = [
+  { key: "headphones", x: 24, y: 6, mx: 45, my: 1, tilt: -12, size: 0.9 },
+  { key: "fork", x: 33, y: 28, mx: 2, my: 62, tilt: -14, size: 0.8 },
+  { key: "notes", x: 4, y: 66, mx: 84, my: 2, tilt: -6, size: 0.85 },
+  { key: "heart", x: 15, y: 62, mx: 43, my: 32, tilt: 8, size: 0.7 },
+  { key: "oneup", x: 11, y: 82, mx: 40, my: 61, tilt: -9, size: 1.1 },
+  { key: "chili", x: 63, y: 6, mx: 86, my: 37, tilt: -20, size: 0.85 },
+  { key: "hoop", x: 69, y: 30, mx: 1, my: 88, tilt: 7, size: 1 },
+  { key: "note", x: 44, y: 70, mx: 3, my: 24, tilt: 10, size: 0.8 },
+  { key: "bottle", x: 52, y: 56, mx: 0, my: 0, tilt: -10, size: 0.9, wideOnly: true },
+  { key: "spoon", x: 47, y: 80, mx: 74, my: 90, tilt: 6, size: 0.95 },
+  { key: "whisk", x: 82, y: 66, mx: 62, my: 77, tilt: 18, size: 0.9 },
+  { key: "coin", x: 93, y: 80, mx: 87, my: 81, tilt: 0, size: 0.7 },
+  { key: "dpad", x: 92, y: 0, mx: 0, my: 0, tilt: 12, size: 0.75, wideOnly: true },
+];
+---
+
+<div class="field" data-draw>
+<ul role="list" class="hobbies">
+  <li data-draw style="--x: 1%; --y: 9%; --mx: 1%; --my: 3%; --tilt: -8deg; --sway: 4.4s; --swing: 5deg">
+    <svg viewBox="0 0 160 120" class="wobble" role="img" aria-label="Chalk doodle of a piano keyboard with musical notes floating above it">
+      <g transform="translate(20 68)">
+        <path class="ink" pathLength="1" d={rectPath(120, 40, 61, 1)} />
+        {whiteKeys.map((k) => <path class="ink" pathLength="1" style={`--draw-delay: ${0.3 + k * 0.05}s`} d={linePath(k * keyWidth, 0, k * keyWidth, 40, k + 60, 0.02)} />)}
+        {blackKeys.map((k) => <rect class="key" x={k * keyWidth - 4} y="0" width="8" height="24" rx="1" />)}
+      </g>
+      <g class="notes">
+        <ellipse class="head" cx="58" cy="50" rx="7" ry="5" transform="rotate(-20 58 50)" />
+        <ellipse class="head" cx="88" cy="44" rx="7" ry="5" transform="rotate(-20 88 44)" />
+        <path class="ink" pathLength="1" style="--draw-delay: 0.6s" d="M64.5 48 L64.5 16 M94.5 42 L94.5 10 M64.5 16 L94.5 10 M64.5 22 L94.5 16" />
+      </g>
+      <g class="notes late">
+        <ellipse class="head" cx="122" cy="36" rx="6" ry="4.5" transform="rotate(-20 122 36)" />
+        <path class="ink" pathLength="1" style="--draw-delay: 0.8s" d="M127.5 34 L127.5 8 C131 14 138 15 136 24" />
+      </g>
+    </svg>
+  </li>
+
+  <li data-draw style="--x: 21%; --y: 52%; --mx: 55%; --my: 12%; --tilt: 6deg; --sway: 3.5s; --swing: -6deg">
+    <svg viewBox="0 0 160 120" class="wobble" role="img" aria-label="Chalk doodle of a game controller whose buttons light up in turn">
+      <path
+        class="ink"
+        pathLength="1"
+        d="M34 58 C32 42 46 36 60 40 L100 40 C114 36 128 42 126 58 C132 80 126 98 114 96 C104 94 100 82 94 78 L66 78 C60 82 56 94 46 96 C34 98 28 80 34 58 Z"
+      />
+      <path class="ink" pathLength="1" style="--draw-delay: 0.6s" d="M52 52 L52 70 M43 61 L61 61" />
+      <path class="ink muted" pathLength="1" style="--draw-delay: 0.7s" d="M74 60 L80 60 M84 60 L90 60" />
+      <g class="buttons">
+        <circle cx="108" cy="52" r="4" />
+        <circle cx="117" cy="61" r="4" />
+        <circle cx="108" cy="70" r="4" />
+        <circle cx="99" cy="61" r="4" />
+      </g>
+    </svg>
+  </li>
+
+  <li data-draw style="--x: 41%; --y: 3%; --mx: 3%; --my: 36%; --tilt: 9deg; --sway: 4s; --swing: -5deg">
+    <svg viewBox="0 0 160 120" class="wobble" role="img" aria-label="Chalk doodle of a dumbbell being lifted">
+      <g class="lift">
+        <path class="ink" pathLength="1" d={linePath(44, 64, 116, 64, 81, 0.01)} />
+        <path class="ink muted" pathLength="1" style="--draw-delay: 0.5s" d="M68 59 L68 69 M75 59 L75 69 M85 59 L85 69 M92 59 L92 69" />
+        <g transform="translate(32 40)"><path class="ink" pathLength="1" style="--draw-delay: 0.2s" d={rectPath(12, 48, 82, 0.6)} /></g>
+        <g transform="translate(19 48)"><path class="ink" pathLength="1" style="--draw-delay: 0.3s" d={rectPath(12, 32, 83, 0.6)} /></g>
+        <g transform="translate(116 40)"><path class="ink" pathLength="1" style="--draw-delay: 0.2s" d={rectPath(12, 48, 84, 0.6)} /></g>
+        <g transform="translate(129 48)"><path class="ink" pathLength="1" style="--draw-delay: 0.3s" d={rectPath(12, 32, 85, 0.6)} /></g>
+      </g>
+      <path class="ink accent" pathLength="1" style="--draw-delay: 0.8s" d="M56 30 C64 22 74 22 80 27 M84 22 C92 15 102 16 106 22" />
+    </svg>
+  </li>
+
+  <li data-draw style="--x: 60%; --y: 50%; --mx: 54%; --my: 48%; --tilt: -3deg; --sway: 5.1s; --swing: 4deg">
+    <svg viewBox="0 0 160 120" class="wobble" role="img" aria-label="Chalk doodle of a pot on the stove with steam rising from it">
+      <g class="steam">
+        <path d="M64 38 C58 32 70 26 64 18 C60 12 66 8 64 4" />
+        <path d="M80 36 C74 30 86 24 80 16 C76 10 82 6 80 2" />
+        <path d="M96 38 C90 32 102 26 96 18 C92 12 98 8 96 4" />
+      </g>
+      <path class="ink" pathLength="1" d="M42 56 C58 44 102 44 118 56" />
+      <path class="ink" pathLength="1" style="--draw-delay: 0.2s" d={circlePath(80, 45, 4, 3, 77)} />
+      <path class="ink" pathLength="1" style="--draw-delay: 0.3s" d={linePath(32, 60, 128, 60, 71, 0.01)} />
+      <path class="ink" pathLength="1" style="--draw-delay: 0.4s" d="M38 60 L44 102 C46 108 114 108 116 102 L122 60" />
+      <path class="ink" pathLength="1" style="--draw-delay: 0.7s" d="M38 68 C26 68 26 80 40 80 M122 68 C134 68 134 80 120 80" />
+      <path class="ink accent" pathLength="1" style="--draw-delay: 0.9s" d="M52 116 C58 110 62 116 68 110 C74 116 80 110 86 116 C92 110 98 116 104 110" />
+    </svg>
+  </li>
+
+  <li data-draw style="--x: 79%; --y: 12%; --mx: 15%; --my: 73%; --tilt: -6deg; --sway: 4.7s; --swing: 6deg">
+    <svg viewBox="0 0 160 120" class="wobble" role="img" aria-label="Chalk doodle of a basketball bouncing">
+      <path class="ink muted shadow" pathLength="1" style="--draw-delay: 0.6s" d={circlePath(80, 110, 26, 4, 91)} />
+      <g class="ball">
+        <path class="ink" pathLength="1" d={circlePath(80, 54, 34, 34, 92)} />
+        <path class="ink accent" pathLength="1" style="--draw-delay: 0.4s" d="M46 54 C62 50 98 50 114 54 M80 20 C76 36 76 70 80 88 M58 28 C71 42 71 66 58 80 M102 28 C89 42 89 66 102 80" />
+      </g>
+    </svg>
+  </li>
+</ul>
+
+  {
+    extras.map((x, i) => (
+      <span class:list={["extra", { "wide-only": x.wideOnly }]} aria-hidden="true" style={`--x:${x.x}%; --y:${x.y}%; --mx:${x.mx}%; --my:${x.my}%; --tilt:${x.tilt}deg; --size:${x.size}; --bob:${2.6 + (i % 3) * 0.7}s; --delay:${0.4 + i * 0.15}s`}>
+        <svg viewBox="0 0 40 40" class="wobble">
+          {x.key === "headphones" && <path class="ink" pathLength="1" d="M8 25 C7 9 33 9 32 25 M5 24 L11 24 L11 35 L5 35 Z M29 24 L35 24 L35 35 L29 35 Z" />}
+          {x.key === "note" && (
+            <g>
+              <ellipse class="solid" cx="14" cy="30" rx="5.5" ry="4" transform="rotate(-20 14 30)" />
+              <path class="ink" pathLength="1" d="M19 29 L19 7 C23 12 29 13 27 21" />
+            </g>
+          )}
+          {x.key === "heart" && (
+            <g class="pixels">
+              {heart.flatMap((row, r) => [...row].map((c, col) => (c === "x" ? <rect x={6 + col * 4} y={9 + r * 4} width="4" height="4" /> : null)))}
+            </g>
+          )}
+          {x.key === "oneup" && (
+            <text x="20" y="26" text-anchor="middle" class="oneup">
+              1-up
+            </text>
+          )}
+          {x.key === "whisk" && <path class="ink" pathLength="1" d="M20 37 L20 25 M20 25 C9 17 12 4 20 4 C28 4 31 17 20 25 M20 25 C15 17 16 6 20 4 C24 6 25 17 20 25" />}
+          {x.key === "chili" && <path class="ink accent" pathLength="1" d="M11 13 C14 27 24 35 35 34 C27 30 21 22 19 12 C16 10 13 10 11 13 Z M15 11 C14 7 16 5 19 4" />}
+          {x.key === "notes" && (
+            <g>
+              <ellipse class="solid" cx="10" cy="31" rx="4.6" ry="3.4" transform="rotate(-20 10 31)" />
+              <ellipse class="solid" cx="27" cy="27" rx="4.6" ry="3.4" transform="rotate(-20 27 27)" />
+              <path class="ink" pathLength="1" d="M14.2 30 L14.2 10 L31.2 6 L31.2 26 M14.2 15 L31.2 11" />
+            </g>
+          )}
+          {x.key === "fork" && <path class="ink" pathLength="1" d="M20 38 L20 18 M13 4 L13 13 C13 18 27 18 27 13 L27 4 M17.7 4 L17.7 13 M22.3 4 L22.3 13" />}
+          {x.key === "coin" && (
+            <g>
+              <path class="ink accent" pathLength="1" d="M20 4 C30 4 35 11 35 20 C35 29 30 36 20 36 C10 36 5 29 5 20 C5 11 10 4 20 4 Z" />
+              <path class="ink accent" pathLength="1" d="M20 11 L20 29" />
+            </g>
+          )}
+          {x.key === "hoop" && (
+            <g>
+              <path class="ink" pathLength="1" d="M8 4 L32 4 L32 18 L8 18 Z M16 9 L24 9 L24 15" />
+              <path class="ink accent" pathLength="1" d="M11 18 C11 22 29 22 29 18" />
+              <path class="ink muted" pathLength="1" d="M12 20 L15 33 M20 21 L20 34 M28 20 L25 33 M14 27 L26 27" />
+            </g>
+          )}
+          {x.key === "bottle" && <path class="ink" pathLength="1" d="M17 3 L23 3 L23 8 M17 3 L17 8 M15 8 L25 8 C28 11 28 12 28 15 L28 35 C28 37 12 37 12 35 L12 15 C12 12 12 11 15 8 Z M12 21 L28 21 M12 27 L28 27" />}
+          {x.key === "dpad" && <path class="ink accent" pathLength="1" d="M15 5 L25 5 L25 15 L35 15 L35 25 L25 25 L25 35 L15 35 L15 25 L5 25 L5 15 L15 15 Z" />}
+          {x.key === "spoon" && <path class="ink" pathLength="1" d="M6 34 L23 17 M26.5 8 C32 3.5 37 7 34 12 C31 17 25 18 23 15.5 C21 13 22.5 11 26.5 8 Z" />}
+        </svg>
+      </span>
+    ))
+  }
+</div>
+
+<style>
+  /* Every doodle is placed freely on one field, spread evenly with no shared rows or columns.
+     Phones get their own taller arrangement. */
+  .field {
+    position: relative;
+    aspect-ratio: 2.85 / 1;
+    margin-top: var(--space-4);
+  }
+
+  .hobbies {
+    position: absolute;
+    inset: 0;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  li,
+  .extra {
+    position: absolute;
+    left: var(--x);
+    top: var(--y);
+    transform: rotate(var(--tilt));
+  }
+
+  li {
+    width: 20%;
+  }
+
+  .extra {
+    width: calc(6.6% * var(--size));
+    transition: opacity 0.5s ease var(--delay);
+  }
+
+  @media (max-width: 40rem) {
+    .field {
+      aspect-ratio: 0.7 / 1;
+    }
+
+    li,
+    .extra {
+      left: var(--mx);
+      top: var(--my);
+    }
+
+    li {
+      width: 42%;
+    }
+
+    .extra {
+      width: calc(13% * var(--size));
+    }
+
+    .wide-only {
+      display: none;
+    }
+  }
+
+  svg {
+    display: block;
+    width: 100%;
+    height: auto;
+    overflow: visible;
+    transform-origin: 50% 80%;
+  }
+
+  .js .field:not(.is-drawn) .extra {
+    opacity: 0;
+  }
+
+  /* Small companion doodles, bobbing on their own timing. */
+  .is-drawn .extra svg {
+    animation: bob var(--bob) ease-in-out var(--delay) infinite alternate;
+  }
+
+  @keyframes bob {
+    to {
+      transform: translateY(-6px) rotate(8deg);
+    }
+  }
+
+  .extra svg {
+    transform-origin: 50% 50%;
+  }
+
+  .solid {
+    fill: var(--color-chalk);
+    filter: url(#chalk);
+  }
+
+  .pixels rect {
+    fill: var(--color-accent);
+    filter: url(#chalk);
+  }
+
+  .oneup {
+    font-family: var(--font-script);
+    font-size: 19px;
+    font-weight: 700;
+    fill: var(--color-accent);
+  }
+
+  /* Once drawn, each doodle sways and bobs on its own rhythm. */
+  .is-drawn svg {
+    animation: sway var(--sway) ease-in-out 1.2s infinite alternate;
+  }
+
+  @keyframes sway {
+    0% {
+      transform: rotate(0deg) translateY(0);
+    }
+    50% {
+      transform: rotate(calc(var(--swing) * -0.5)) translateY(-7px) scale(1.03);
+    }
+    100% {
+      transform: rotate(var(--swing)) translateY(-2px);
+    }
+  }
+
+  /* Solid chalk shapes fade in once their outlines are drawn. */
+  .key,
+  .head,
+  .buttons circle {
+    fill: var(--color-chalk);
+    filter: url(#chalk);
+    transition: opacity 0.6s ease 0.9s;
+  }
+
+  .buttons circle {
+    fill: none;
+    stroke: var(--color-chalk);
+    stroke-width: 2;
+  }
+
+  .js li:not(.is-drawn) :is(.key, .head, .buttons circle, .steam) {
+    opacity: 0;
+  }
+
+  .steam {
+    transition: opacity 0.6s ease 1.2s;
+  }
+
+  .steam path {
+    fill: none;
+    stroke: var(--color-muted);
+    stroke-width: 2.25;
+    stroke-linecap: round;
+  }
+
+  /* Idle loops start once the doodle has been drawn. */
+  .is-drawn .notes {
+    animation: float 2.8s ease-in-out 1.4s infinite alternate;
+  }
+
+  .is-drawn .notes.late {
+    animation-delay: 2s;
+  }
+
+  @keyframes float {
+    to {
+      transform: translateY(-9px) rotate(-6deg);
+    }
+  }
+
+  .is-drawn .buttons circle {
+    animation: press 3.2s steps(1) infinite;
+  }
+
+  .is-drawn .buttons circle:nth-child(2) {
+    animation-delay: 0.8s;
+  }
+
+  .is-drawn .buttons circle:nth-child(3) {
+    animation-delay: 1.6s;
+  }
+
+  .is-drawn .buttons circle:nth-child(4) {
+    animation-delay: 2.4s;
+  }
+
+  /* The dumbbell curls up and down. */
+  .is-drawn .lift {
+    animation: lift 1.8s ease-in-out 1.2s infinite alternate;
+  }
+
+  @keyframes lift {
+    to {
+      transform: translateY(-10px) rotate(-4deg);
+    }
+  }
+
+  /* The ball bounces; its shadow tightens as it rises. */
+  .is-drawn .ball {
+    animation: bounce 0.9s cubic-bezier(0.3, 0, 0.6, 1) 1.2s infinite alternate;
+  }
+
+  .shadow {
+    transform-box: fill-box;
+    transform-origin: center;
+  }
+
+  .is-drawn .shadow {
+    animation: shadow 0.9s cubic-bezier(0.3, 0, 0.6, 1) 1.2s infinite alternate;
+  }
+
+  @keyframes bounce {
+    to {
+      transform: translateY(-20px);
+    }
+  }
+
+  @keyframes shadow {
+    to {
+      transform: scaleX(0.65);
+      opacity: 0.5;
+    }
+  }
+
+  @keyframes press {
+    0% {
+      fill: var(--color-accent);
+      stroke: var(--color-accent);
+    }
+    25% {
+      fill: none;
+      stroke: var(--color-chalk);
+    }
+  }
+
+  .is-drawn .steam path {
+    animation: rise 3s ease-in-out infinite;
+  }
+
+  .is-drawn .steam path:nth-child(2) {
+    animation-delay: 1s;
+  }
+
+  .is-drawn .steam path:nth-child(3) {
+    animation-delay: 2s;
+  }
+
+  @keyframes rise {
+    0% {
+      transform: translateY(8px);
+      opacity: 0;
+    }
+    40% {
+      opacity: 1;
+    }
+    100% {
+      transform: translateY(-6px);
+      opacity: 0;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .steam path {
+      opacity: 1;
+    }
+  }
+</style>

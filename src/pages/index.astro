@@ -1,94 +1,329 @@
 ---
-import { getCollection } from "astro:content";
-
 import Layout from "@/layouts/Layout.astro";
-import SocialLinks from "@/components/SocialLinks.astro";
+import Section from "@/components/Section.astro";
+import ExperienceRole from "@/components/ExperienceRole.astro";
 import ProjectCard from "@/components/ProjectCard.astro";
-import ExperienceTimeline from "@/components/ExperienceTimeline.astro";
-import convertAsteriskToStrongTag from "@/utils/convertAsteriskToStrongTag";
-import Resume from "../content/resume/Aarham-Haider-Resume.pdf"
-import presentation from "@/data/presentation";
+import InterestsField from "@/components/InterestsField.astro";
+import HandwrittenTitle from "@/components/HandwrittenTitle.astro";
+import HobbyDoodles from "@/components/HobbyDoodles.astro";
+import ContactCard from "@/components/ContactCard.astro";
+import TechList from "@/components/TechList.astro";
+import experience from "@/data/experience";
 import projects from "@/data/projects";
-import {languages} from'@/data/technologies';
-import {technologies} from'@/data/technologies';
-import {frameworks} from '@/data/technologies';
+import presentation from "@/data/presentation";
+import { circlePath, rectPath } from "@/utils/rough";
 
-import TechnologyCard from "@/components/TechnologyCard.astro";
+const featured = projects.filter((project) => project.featured);
+const { education } = presentation;
 
+const notes = presentation.skills.map((group) => ({ label: group.label.toLowerCase(), items: group.items }));
 ---
 
 <Layout>
-  <main class="flex flex-col gap-20">
-    <article class="flex flex-col gap-8">
-      <h1 class="text-3xl font-bold text-rose-400">{presentation.title}</h1>
-      <h2
-        class="max-w-[100ch] leading-6"
-        set:html={convertAsteriskToStrongTag(presentation.description)}
-      />
-    </article>
+  <section class="container hero" aria-labelledby="intro-title">
+    <div class="hero-text">
+      <HandwrittenTitle id="intro-title" text="hey, i’m aarham!" />
+      <p class="lede">
+        I’m a software engineer at Harris Computer in {presentation.location}. I build the <mark>billing platform</mark>, the
+        <mark>test infrastructure</mark>, and the <mark>LLM agent pipelines</mark> our team ships with every day.
+      </p>
+      {presentation.about.map((paragraph) => <p>{paragraph}</p>)}
 
-    <article class="flex flex-col">
-      
-      <header class="flex w-full flex-row justify-between gap-3 items-center pb-4">
-        <h3 class="text-xl font-bold text-rose-400">// experience //</h3>
-      </header>
-      <div>
-      <ExperienceTimeline/>
-
-    <article class="flex flex-col">
-      
-      <header class="mt-10 flex w-full flex-row justify-between gap-3 items-center pb-4">
-            <h3 class="text-xl font-bold text-rose-400">// education //</h3>
-      </header>
-
-      <h3 class="text-lg font-semibold text-white">{presentation.education.institution}<h3>
-      <h3 class="text-normal font-normal">{presentation.education.degree}<h3>
-      <h3 class="text-xs font-thin">GPA: {presentation.education.gpa}/4.33<h3>
-      </article>
-  
-    <article class="flex flex-col">
-      
-      <header class="mt-20 flex w-full flex-row justify-between gap-3 items-center pb-4">
-            <h3 class="text-xl font-bold text-rose-400">// competencies //</h3>
-      </header>
-      <div class="flex justify-center pb-10">
-
-        <section class="grid grid-cols-3 gap-5 sm:grid-cols-7">
-          {
-            languages.length !== 0 &&
-              languages.map((language) => <TechnologyCard {...language} />)
-          }
-          {
-            technologies.length !== 0 &&
-            technologies.map((technology) => <TechnologyCard {...technology} />)
-          }
-          {
-            frameworks.length !== 0 &&
-            frameworks.map((framework) => <TechnologyCard {...framework} />)
-          }
-      </section>
+      <div class="actions">
+        <a class="sketch-button" href={`mailto:${presentation.mail}`}>
+          email me
+          <svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true" class="wobble">
+            <path class="ink accent" d={rectPath(100, 100, 5, 2)} vector-effect="non-scaling-stroke"></path>
+          </svg>
+        </a>
+        <a class="sketch-button" href={presentation.resume} target="_blank" rel="noreferrer">
+          read my résumé<span class="visually-hidden"> (opens in a new tab)</span>
+          <svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true" class="wobble">
+            <path class="ink" d={rectPath(100, 100, 9, 2)} vector-effect="non-scaling-stroke"></path>
+          </svg>
+        </a>
       </div>
-    </article>
-    <article class="flex flex-col gap-8">
-      <header class="mt-20 flex w-full flex-row justify-between gap-3 items-center pb-4">
-            <h3 class="text-xl font-bold text-rose-400">// selected projects //</h3>
-      </header>
-      {projects.length === 0 && <p>Oops, I must work^^^^^</p>}
+    </div>
+    <div class="hero-field">
+      <InterestsField />
+    </div>
+  </section>
 
-      <section class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        {
-          projects.length !== 0 &&
-            projects.map((project) => <ProjectCard {...project} />)
-        }
-      </section>
-    </article>
+  <Section id="experience" title="where i've worked" aside="read it like a state machine: start at q0, the double circle is where I am now." seed={4}>
+    <ol role="list" class="timeline">
+      {
+        experience.map((role, index) => (
+          <ExperienceRole
+            {...role}
+            state={experience.length - 1 - index}
+            current={index === 0}
+            first={index === experience.length - 1}
+          />
+        ))
+      }
+    </ol>
+  </Section>
 
-    <article class="flex flex-col gap-8">
-      <header class="mt-20 flex w-full flex-row justify-between gap-3 items-center">
-            <h3 class="text-xl font-bold text-rose-400">// contact me //</h3>
-      </header>
+  <Section id="education" title="where i studied" seed={6}>
+    <div class="school" data-draw>
+      <svg class="school-frame wobble" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+        <path class="ink muted" d={rectPath(100, 100, 97, 0.6)} vector-effect="non-scaling-stroke"></path>
+      </svg>
+      <svg class="cap wobble" viewBox="0 0 120 90" aria-hidden="true">
+        <path class="ink" pathLength="1" d="M60 10 L112 32 L60 54 L8 32 Z"></path>
+        <path class="ink" pathLength="1" style="--draw-delay: 0.4s" d="M30 42 L30 66 C42 80 78 80 90 66 L90 42"></path>
+        <path class="ink accent" pathLength="1" style="--draw-delay: 0.8s" d="M60 32 L100 40 L100 70"></path>
+        <path class="ink accent" pathLength="1" style="--draw-delay: 1s" d={circlePath(100, 74, 4, 5, 12)}></path>
+      </svg>
+      <div class="school-text">
+        <p class="note">graduated {education.graduated.toLowerCase()}</p>
+        <h3>{education.institution}</h3>
+        <p class="degree">{education.degree}, {education.location}</p>
+        <h4>coursework</h4>
+        <ul role="list">
+          {education.coursework.map((course) => <li>{course}</li>)}
+        </ul>
+      </div>
+    </div>
+  </Section>
 
-      <SocialLinks />
-    </article>
-  </main>
+  <Section id="projects" title="things i've built" aside="side projects, from regex engines to a browser piano." seed={8}>
+    <div class="projects">
+      {featured.map((project, index) => <ProjectCard {...project} index={index} />)}
+    </div>
+    <p class="archive"><a href="/posts">see all {projects.length} projects</a></p>
+  </Section>
+
+  <Section id="skills" title="what i know" seed={12}>
+    <div class="notes">
+      {
+        notes.map((note, index) => (
+          <div class="sticky" style={`--tilt: ${[-0.8, 0.6, -0.4, 0.9, -0.6, 0.5][index % 6]}deg`}>
+            <svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true" class="wobble">
+              <path class="ink muted" d={rectPath(100, 100, index * 3 + 40, 0.9)} vector-effect="non-scaling-stroke" />
+            </svg>
+            <h3>{note.label}</h3>
+            <TechList items={note.items} label={note.label} size="lg" />
+          </div>
+        ))
+      }
+    </div>
+  </Section>
+
+  <Section id="off-the-clock" title="off the clock" seed={14}>
+    <p class="off-clock">{presentation.offClock}</p>
+    <HobbyDoodles />
+  </Section>
+
+  <Section id="contact" title="say hi" seed={16}>
+    <ContactCard />
+  </Section>
 </Layout>
+
+<style>
+  .hero {
+    display: grid;
+    gap: var(--space-7);
+    align-items: center;
+    padding-top: var(--space-6);
+  }
+
+  @media (min-width: 56rem) {
+    .hero {
+      grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+    }
+  }
+
+  .hero-text {
+    display: grid;
+    gap: var(--space-4);
+  }
+
+  .lede {
+    font-size: var(--text-lg);
+    color: var(--color-chalk);
+  }
+
+  mark {
+    color: inherit;
+    background: linear-gradient(transparent 62%, var(--highlight) 62%, var(--highlight) 88%, transparent 88%);
+    padding-inline: 0.1em;
+  }
+
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-4) var(--space-5);
+    margin-top: var(--space-3);
+  }
+
+  .sketch-button {
+    position: relative;
+    display: inline-block;
+    padding: var(--space-2) var(--space-5);
+    background: none;
+    font-family: var(--font-script);
+    font-size: 1.6rem;
+    font-weight: 700;
+    line-height: 1.2;
+    color: var(--color-chalk);
+    transition: transform 200ms var(--draw-ease), color 150ms ease;
+  }
+
+  .sketch-button:hover {
+    color: var(--color-accent);
+    transform: rotate(-1.5deg);
+  }
+
+  .sketch-button svg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+    pointer-events: none;
+  }
+
+  .hero-field {
+    width: 100%;
+    max-width: 34rem;
+    justify-self: center;
+    padding-bottom: var(--space-5);
+  }
+
+  .school {
+    position: relative;
+    display: grid;
+    gap: var(--space-5);
+    align-items: center;
+    padding: var(--space-6) var(--space-5);
+  }
+
+  @media (min-width: 40rem) {
+    .school {
+      grid-template-columns: 9rem minmax(0, 1fr);
+      gap: var(--space-7);
+      padding: var(--space-6) var(--space-7);
+    }
+  }
+
+  .school-frame {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+    pointer-events: none;
+  }
+
+  .cap {
+    width: 9rem;
+    height: auto;
+    overflow: visible;
+  }
+
+  .school h3 {
+    font-size: var(--text-xl);
+  }
+
+  .degree {
+    color: var(--color-muted);
+  }
+
+  .school h4 {
+    margin-top: var(--space-4);
+    margin-bottom: var(--space-1);
+    font-size: var(--text-lg);
+    color: var(--color-accent);
+  }
+
+  .school ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-1) var(--space-5);
+    padding: 0;
+    list-style: none;
+  }
+
+  .school li::before {
+    content: "* ";
+    font-family: var(--font-script);
+    color: var(--color-muted);
+  }
+
+  .off-clock {
+    max-width: var(--width-measure);
+    margin-bottom: var(--space-6);
+  }
+
+  .timeline {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .projects {
+    display: grid;
+    gap: var(--space-8) var(--space-7);
+    padding-top: var(--space-4);
+  }
+
+  @media (min-width: 44rem) {
+    .projects {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  .archive {
+    margin-top: var(--space-7);
+    font-family: var(--font-script);
+    font-size: var(--text-xl);
+  }
+
+  /* Cards wrap and center, so a short last row sits in the middle. */
+  .notes {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--space-6);
+  }
+
+  .sticky {
+    position: relative;
+    flex: 1 1 100%;
+    max-width: 30rem;
+    padding: var(--space-5) var(--space-6) var(--space-6);
+    transform: rotate(var(--tilt));
+  }
+
+  @media (min-width: 44rem) {
+    .sticky {
+      flex-basis: calc(50% - var(--space-6));
+    }
+  }
+
+  @media (min-width: 60rem) {
+    .notes {
+      gap: var(--space-6) var(--space-5);
+    }
+
+    .sticky {
+      flex: 0 1 calc((100% - 2 * var(--space-5)) / 3);
+    }
+  }
+
+  .sticky svg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+  }
+
+  .sticky h3 {
+    margin-bottom: var(--space-2);
+    font-size: var(--text-xl);
+    color: var(--color-accent);
+  }
+
+</style>

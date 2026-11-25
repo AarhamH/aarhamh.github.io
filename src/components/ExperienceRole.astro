@@ -1,0 +1,246 @@
+---
+import type { Experience } from "@/data/experience";
+import { arrowPath, circlePath, linePath } from "@/utils/rough";
+import TechList from "./TechList.astro";
+
+type Props = Experience & {
+  state: number;
+  current?: boolean;
+  first?: boolean;
+};
+
+const { title, company, location, start, end, blurb, metrics, stack, state, current, first } = Astro.props;
+const seed = state * 11 + 3;
+---
+
+<li class="role" data-draw>
+  <div class="node" aria-hidden="true">
+    <svg viewBox="0 0 72 72" class="wobble">
+      <path class="ink" pathLength="1" d={circlePath(36, 36, 27, 27, seed)}></path>
+      {current && <path class="ink" pathLength="1" style="--draw-delay: 0.5s" d={circlePath(36, 36, 21, 21, seed + 5)}></path>}
+      <text x="36" y="42" text-anchor="middle">q{state}</text>
+    </svg>
+    {
+      first ? (
+        <svg class="start wobble" viewBox="0 0 40 70">
+          <path class="ink muted" pathLength="1" d={arrowPath(20, 66, 20, 6, seed, 0.06, 8)} style="--draw-delay: 0.3s"></path>
+        </svg>
+      ) : (
+        <div class="edge">
+          <svg class="edge-line" viewBox="0 0 10 100" preserveAspectRatio="none">
+            <path class="ink muted" d={linePath(5, 0, 5, 100, seed, 0.02)} vector-effect="non-scaling-stroke"></path>
+          </svg>
+          <svg class="edge-head wobble" viewBox="0 0 20 14">
+            <path class="ink muted" d="M3 12 L10 3 L17 12"></path>
+          </svg>
+        </div>
+      )
+    }
+    {first && <span class="start-label note">start</span>}
+  </div>
+
+  <div class="content">
+    {current && <p class="note here">&larr; currently here</p>}
+    <p class="dates">{start} to {end.toLowerCase() === "present" ? "now" : end}</p>
+    <h3>{title}</h3>
+    <p class="company">
+      @ <strong>{company}</strong>, {location}
+    </p>
+    <p class="blurb">{blurb}</p>
+
+    {
+      metrics && (
+        <dl class="metrics">
+          {metrics.map((metric, i) => (
+            <div class="metric">
+              <dt>
+                <span>{metric.value}</span>
+                <svg viewBox="0 0 120 64" preserveAspectRatio="none" aria-hidden="true" class="wobble">
+                  <path
+                    class="ink accent"
+                    pathLength="1"
+                    style={`--draw-delay: ${0.4 + i * 0.25}s; --draw-duration: 0.8s`}
+                    d={circlePath(60, 32, 54, 26, seed + i * 3)}
+                  />
+                </svg>
+              </dt>
+              <dd>{metric.label}</dd>
+            </div>
+          ))}
+        </dl>
+      )
+    }
+
+    {
+      stack && (
+        <div class="stack">
+          <TechList items={stack} label="Tools used" />
+        </div>
+      )
+    }
+  </div>
+</li>
+
+<style>
+  .role {
+    position: relative;
+    display: grid;
+    grid-template-columns: 4.5rem minmax(0, 1fr);
+    gap: var(--space-4);
+    padding-bottom: var(--space-7);
+  }
+
+  .node {
+    position: relative;
+  }
+
+  .node > svg:first-child {
+    width: 4.5rem;
+    height: 4.5rem;
+    overflow: visible;
+  }
+
+  .node text {
+    font-family: var(--font-script);
+    font-size: 22px;
+    font-weight: 700;
+    fill: var(--color-chalk);
+  }
+
+  /* The transition arrow from the previous state runs up into this node. */
+  .edge {
+    position: absolute;
+    left: calc(50% - 10px);
+    top: 4.75rem;
+    bottom: -0.25rem;
+    width: 20px;
+    transform-origin: bottom;
+    transition: transform 0.9s var(--draw-ease) 0.2s;
+  }
+
+  .js .role:not(.is-drawn) .edge {
+    transform: scaleY(0);
+  }
+
+  .edge-line {
+    position: absolute;
+    left: 5px;
+    top: 2px;
+    width: 10px;
+    height: calc(100% - 2px);
+  }
+
+  .edge-head {
+    position: absolute;
+    top: -2px;
+    left: 0;
+    width: 20px;
+    height: 14px;
+    overflow: visible;
+  }
+
+  .start {
+    display: block;
+    width: 40px;
+    height: 70px;
+    margin: var(--space-1) auto 0;
+  }
+
+  .start-label {
+    display: block;
+    text-align: center;
+    color: var(--color-muted);
+  }
+
+  .here {
+    margin-bottom: var(--space-1);
+  }
+
+  .dates {
+    font-family: var(--font-script);
+    font-size: var(--text-lg);
+    color: var(--color-muted);
+  }
+
+  h3 {
+    font-size: var(--text-xl);
+  }
+
+  .company {
+    margin-top: var(--space-1);
+  }
+
+  .company strong {
+    font-weight: 400;
+    color: var(--color-chalk);
+  }
+
+  .blurb {
+    margin-top: var(--space-3);
+    max-width: var(--width-measure);
+  }
+
+  .metrics {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-4) var(--space-6);
+    margin-top: var(--space-5);
+  }
+
+  .metric {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+  }
+
+  .metric dt {
+    position: relative;
+    display: grid;
+    place-items: center;
+    min-width: 6.25rem;
+    height: 3.5rem;
+    padding-inline: var(--space-3);
+    font-family: var(--font-script);
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--color-accent);
+  }
+
+  .metric svg {
+    position: absolute;
+    inset: -4px -6px;
+    width: calc(100% + 12px);
+    height: calc(100% + 8px);
+    overflow: visible;
+    --ink-width: 2;
+  }
+
+  .metric dd {
+    max-width: 12rem;
+    font-size: var(--text-sm);
+    line-height: 1.3;
+    color: var(--color-muted);
+  }
+
+  .stack {
+    margin-top: var(--space-4);
+    font-size: var(--text-sm);
+    color: var(--color-muted);
+  }
+
+  @media (max-width: 34rem) {
+    .role {
+      grid-template-columns: 3.25rem minmax(0, 1fr);
+      gap: var(--space-3);
+    }
+
+    .node > svg:first-child {
+      width: 3.25rem;
+      height: 3.25rem;
+    }
+
+    .edge {
+      top: 3.5rem;
+    }
+  }
+</style>

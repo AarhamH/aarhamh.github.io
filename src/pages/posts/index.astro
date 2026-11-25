@@ -1,62 +1,172 @@
 ---
-import { getCollection } from "astro:content";
 import Layout from "@/layouts/Layout.astro";
-import formatUrl from "@/utils/formatUrl";
-import type { Project } from "@/data/projects";
-import projects from "@/data/projects";
+import projects, { byYear } from "@/data/projects";
 
-type Props = Project;
-const { title, techs, link, image, important } = Astro.props;
+const sorted = byYear(projects);
 ---
 
-<Layout title="Aarham Haider - Projects">
-  <main class="flex flex-col gap-10">
-    <h1 class="text-2xl text-neutral-100">Project Archive ({projects.length})</h1>
-    
-    <article class="flex flex-col">
-      {
-        projects.sort((b,a) => parseInt(a.year) - parseInt(b.year)).map((project) => (
-          <a
-            class="group flex flex-col bg-rose-400 bg-opacity-0 gap-2 border-t border-neutral-700 py-4 duration-300 transition-all hover:bg-opacity-10"
-            href={project.link}
-          >
-            <div class="flex w-full items-center justify-between">
-              <h2 class="text-lg pl-5 transition-color duration-300 group-hover:text-rose-400">{project.title}</h2>
-              <div class="pr-5 flex flex-row items-center gap-4">
-                <p>{project.year}</p>
-                <svg
-                  width="18"
-                  height="18"
-                  viewBox="0 0 18 18"
-                  fill="none"
-                  class="transition-all duration-300 group-hover:translate-x-1"
-                >
-                  <path
-                    d="M5.25 12.75L12.75 5.25"
-                    stroke="#999999"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  />
-                  <path
-                    d="M5.25 5.25H12.75V12.75"
-                    stroke="#999999"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  />
-                </svg>
-              </div>
-            </div>
-            <div class="pl-5 flex flex-wrap gap-2">
-            {project.techs.map((tech) => (
-              <div class="px-2 bg-rose-400 opacity-50 duration-300 rounded-lg inline-flex items-center border border-rose-400 transition-all group-hover:opacity-100 group-hover:bg-black">
-                <p class="text-[12px] text-black duration-300 transition-all  group-hover:text-white">{tech}</p>
-            </div>
+<Layout title="Projects | Aarham Haider" description="Every project Aarham Haider has published on GitHub.">
+  <div class="container page">
+    <h1>project archive <span class="count">({sorted.length})</span></h1>
+    <p class="lede">Everything I have published on GitHub, newest first.</p>
+
+    {sorted.length === 0 && <p class="empty">No projects are listed yet. Check GitHub for the latest work.</p>}
+
+    {
+      sorted.length > 0 && (
+        <table>
+          <caption class="visually-hidden">All projects</caption>
+          <thead>
+            <tr>
+              <th scope="col">Year</th>
+              <th scope="col">Project</th>
+              <th scope="col" class="col-stack">Built with</th>
+            </tr>
+          </thead>
+          <tbody>
+            {sorted.map((project) => (
+              <tr>
+                <td class="tabular year">{project.year}</td>
+                <th scope="row">
+                  <a class="title" href={project.link} target="_blank" rel="noreferrer">
+                    {project.title}
+                    <span class="visually-hidden"> on GitHub (opens in a new tab)</span>
+                  </a>
+                  {project.tagline && <span class="tagline">{project.tagline}</span>}
+                  <span class="stack-inline">{project.techs.join(", ")}</span>
+                </th>
+                <td class="col-stack">{project.techs.join(", ")}</td>
+              </tr>
             ))}
-            </div>
-            <p class="text-[12px] pl-5">{formatUrl(project.link)}</p>
-          </a>
-        ))
-      }
-    </article>
-  </main>
+          </tbody>
+        </table>
+      )
+    }
+  </div>
 </Layout>
+
+<style>
+  .page {
+    padding-top: var(--space-8);
+  }
+
+  h1 {
+    font-size: var(--text-2xl);
+    color: var(--color-accent);
+  }
+
+  .count {
+    color: var(--color-muted);
+    font-weight: 400;
+  }
+
+  tbody tr {
+    position: relative;
+    transition: background-color 150ms ease;
+  }
+
+  tbody tr:hover,
+  tbody tr:focus-within {
+    background: var(--row-hover);
+  }
+
+  .title::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+  }
+
+  .title:focus-visible {
+    outline: none;
+  }
+
+  tbody tr:focus-within {
+    outline: 2px solid var(--color-accent);
+    outline-offset: -2px;
+  }
+
+  td:first-child {
+    padding-left: var(--space-3);
+  }
+
+  .lede {
+    margin-top: var(--space-3);
+    color: var(--color-muted);
+  }
+
+  .empty {
+    margin-top: var(--space-6);
+  }
+
+  table {
+    width: 100%;
+    margin-top: var(--space-7);
+    border-collapse: collapse;
+    font-size: var(--text-sm);
+  }
+
+  thead th {
+    padding-bottom: var(--space-3);
+    text-align: left;
+    font-family: var(--font-script);
+    font-size: var(--text-lg);
+    font-weight: 700;
+    color: var(--color-muted);
+    border-bottom: 1px solid var(--color-rule);
+  }
+
+  td,
+  tbody th {
+    padding: var(--space-4) var(--space-4) var(--space-4) 0;
+    text-align: left;
+    vertical-align: baseline;
+    border-bottom: 1px solid var(--color-rule);
+    font-weight: 400;
+  }
+
+  .year {
+    width: 4.5rem;
+    color: var(--color-muted);
+  }
+
+  .title {
+    display: block;
+    background: none;
+    padding: 0;
+    font-family: var(--font-script);
+    font-size: var(--text-xl);
+    font-weight: 700;
+    line-height: 1.1;
+    color: var(--color-chalk);
+    text-decoration: none;
+  }
+
+  tbody tr:hover .title {
+    color: var(--color-accent);
+  }
+
+  .tagline,
+  .stack-inline {
+    display: block;
+    color: var(--color-muted);
+  }
+
+  .col-stack {
+    display: none;
+  }
+
+  td.col-stack {
+    color: var(--color-accent);
+    padding-right: 0;
+  }
+
+  @media (min-width: 48rem) {
+    .col-stack {
+      display: table-cell;
+    }
+
+    .stack-inline {
+      display: none;
+    }
+  }
+</style>

@@ -1,0 +1,69 @@
+---
+type Props = {
+  title: string;
+  draft?: boolean;
+  updated?: string;
+};
+
+const { title, draft, updated } = Astro.props;
+---
+
+<div class="container">
+<article class="prose">
+  {
+    draft && (
+      <p class="draft" role="note">
+        <strong>Draft for review.</strong> This page has not been reviewed by a lawyer. Bracketed items need
+        confirmation before this is final.
+      </p>
+    )
+  }
+  <h1>{title}</h1>
+  {updated && <p class="updated">Last updated {updated}</p>}
+  <slot />
+</article>
+</div>
+
+<style>
+  .prose {
+    max-width: var(--width-measure);
+    padding-top: var(--space-8);
+  }
+
+  .draft {
+    margin-bottom: var(--space-6);
+    padding: var(--space-3) var(--space-4);
+    border: 1px solid var(--color-accent);
+    border-radius: var(--radius);
+    font-size: var(--text-sm);
+    background: var(--color-surface);
+  }
+
+  h1 {
+    font-size: var(--text-2xl);
+  }
+
+  .updated {
+    margin-top: var(--space-2);
+    font-size: var(--text-sm);
+    color: var(--color-muted);
+  }
+
+  .prose :global(h2) {
+    margin-top: var(--space-7);
+    font-size: var(--text-lg);
+  }
+
+  .prose :global(p),
+  .prose :global(ul) {
+    margin-top: var(--space-4);
+  }
+
+  .prose :global(ul) {
+    padding-left: var(--space-5);
+  }
+
+  .prose :global(li + li) {
+    margin-top: var(--space-2);
+  }
+</style>

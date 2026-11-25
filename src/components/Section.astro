@@ -1,0 +1,52 @@
+---
+import { underlinePath } from "@/utils/rough";
+
+type Props = {
+  id: string;
+  title: string;
+  aside?: string;
+  seed?: number;
+};
+
+const { id, title, aside, seed = 3 } = Astro.props;
+---
+
+<section id={id} class="container section" aria-labelledby={`${id}-title`}>
+  <header class="head" data-draw>
+    <h2 id={`${id}-title`}>{title}</h2>
+    <svg class="underline wobble" viewBox="0 0 220 12" aria-hidden="true">
+      <path class="ink accent" pathLength="1" d={underlinePath(216, seed, 9)} transform="translate(2 1.5)"></path>
+    </svg>
+    {aside && <p class="note aside">{aside}</p>}
+  </header>
+  <slot />
+</section>
+
+<style>
+  .section {
+    padding-top: var(--space-8);
+    scroll-margin-top: var(--space-4);
+  }
+
+  .head {
+    position: relative;
+    margin-bottom: var(--space-6);
+  }
+
+  h2 {
+    font-size: var(--text-2xl);
+  }
+
+  .underline {
+    display: block;
+    width: min(220px, 70%);
+    height: 12px;
+    margin-top: var(--space-1);
+    overflow: visible;
+  }
+
+  .aside {
+    margin-top: var(--space-2);
+    color: var(--color-muted);
+  }
+</style>

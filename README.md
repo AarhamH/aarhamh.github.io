@@ -14,7 +14,7 @@ This repository contains the source code for my personal portfolio website. Feel
 
 ### Front End:
 - Astro + TypeScript
-- Tailwind CSS
+- Plain CSS with design tokens (`src/styles/global.css`)
 
 ### License
 The repo is under the MIT License, as I want others to use this site as an augmented template to an Astro web page.

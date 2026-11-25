@@ -1,36 +1,116 @@
 ---
-import Header from "../components/Header.astro";
-import BlurCircle from "@/components/shared/BlurCircle.astro";
-import theme from "@/data/theme";
+import Header from "@/components/Header.astro";
+import Footer from "@/components/Footer.astro";
 import SEOTags from "@/components/seo/SEOTags.astro";
 
-import "@fontsource/open-sans";
-import "@/styles/tailwind.css";
-import "@/styles/post.css";
-//
+import "@fontsource/patrick-hand/400.css";
+import "@fontsource/caveat/500.css";
+import "@fontsource/caveat/700.css";
+import "@/styles/global.css";
+
 export interface Props {
   title?: string;
+  description?: string;
 }
 
-const { title } = Astro.props;
+const { title, description } = Astro.props;
 ---
 
 <!DOCTYPE html>
 <html lang="en">
-  <SEOTags title={title} />
+  <SEOTags title={title} description={description} />
 
-  <body
-    class="mx-auto flex min-h-screen max-w-[872px] flex-col gap-9 bg-neutral-950 px-10 py-8 text-sm text-neutral-400 md:gap-20 md:py-16"
-  >
+  <body>
+    <script is:inline>
+      (function () {
+        var root = document.documentElement;
+        root.classList.add("js");
+        var stored = null;
+        try {
+          stored = localStorage.getItem("theme");
+        } catch (e) {}
+        var system = window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
+        root.dataset.theme = stored === "light" || stored === "dark" ? stored : system;
+      })();
+    </script>
+
+    <!-- Gentle, low-frequency displacement so strokes drift like a real pen without jagged edges. -->
+    <svg class="filters" aria-hidden="true" focusable="false">
+      <filter id="wobble"><feTurbulence type="fractalNoise" baseFrequency="0.012" numOctaves="1" seed="1"></feTurbulence><feDisplacementMap in="SourceGraphic" scale="2.2"></feDisplacementMap></filter>
+      <!-- Chalk: eat holes into the fill with fine noise, then rough up the edges. -->
+      <filter id="chalk" x="-10%" y="-10%" width="120%" height="120%">
+        <feTurbulence type="fractalNoise" baseFrequency="1" numOctaves="1" seed="4" result="grain"></feTurbulence>
+        <feColorMatrix in="grain" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -1.5 1.7" result="mask"></feColorMatrix>
+        <feComposite in="SourceGraphic" in2="mask" operator="in" result="grainy"></feComposite>
+        <feTurbulence type="fractalNoise" baseFrequency="0.03" numOctaves="1" seed="9" result="warp"></feTurbulence>
+        <feDisplacementMap in="grainy" in2="warp" scale="0.7"></feDisplacementMap>
+      </filter>
+    </svg>
+
+    <a class="skip-link" href="#main">skip to content</a>
     <Header />
-    <BlurCircle position="top" color={theme.colors.blur.top} />
-    <BlurCircle position="bottom" color={theme.colors.blur.bottom} />
-    <slot />
-    <style is:global>
-      html {
-        font-family: "Open Sans";
+    <main id="main" tabindex="-1">
+      <slot />
+    </main>
+    <Footer />
+
+    <script>
+      const targets = document.querySelectorAll<HTMLElement>("[data-draw]");
+      const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+      if (reduce || !("IntersectionObserver" in window)) {
+        targets.forEach((el) => el.classList.add("is-drawn"));
+      } else {
+        const observer = new IntersectionObserver(
+          (entries) => {
+            for (const entry of entries) {
+              if (entry.isIntersecting) {
+                entry.target.classList.add("is-drawn");
+                observer.unobserve(entry.target);
+              }
+            }
+          },
+          { rootMargin: "0px 0px -10% 0px" }
+        );
+        targets.forEach((el) => observer.observe(el));
       }
-    </style>
-    <script is:inline src="https://cdn.jsdelivr.net/npm/flowbite@2.4.1/dist/flowbite.min.js"></script>
+    </script>
   </body>
 </html>
+
+<style>
+  body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+  }
+
+  main {
+    flex: 1;
+  }
+
+  main:focus {
+    outline: none;
+  }
+
+  .filters {
+    position: absolute;
+    width: 0;
+    height: 0;
+  }
+
+  .skip-link {
+    position: absolute;
+    left: var(--space-4);
+    top: -3rem;
+    z-index: 10;
+    padding: var(--space-1) var(--space-4);
+    background: var(--color-accent);
+    color: var(--color-bg);
+    border-radius: 4px;
+  }
+
+  .skip-link:focus {
+    top: var(--space-4);
+  }
+</style>

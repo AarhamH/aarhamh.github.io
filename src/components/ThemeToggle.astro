@@ -1,0 +1,100 @@
+---
+import { circlePath, linePath } from "@/utils/rough";
+
+// Eight short rays around the sun.
+const rays = Array.from({ length: 8 }, (_, i) => {
+  const a = (i / 8) * Math.PI * 2;
+  return linePath(16 + Math.cos(a) * 10, 16 + Math.sin(a) * 10, 16 + Math.cos(a) * 14, 16 + Math.sin(a) * 14, i + 3, 0.05);
+});
+---
+
+<button class="theme-toggle" type="button" aria-label="Switch to light mode">
+  <svg class="icon sun wobble" viewBox="0 0 32 32" aria-hidden="true">
+    <path class="ink" d={circlePath(16, 16, 6, 6, 41)}></path>
+    {rays.map((ray) => <path class="ink" d={ray} />)}
+  </svg>
+  <svg class="icon moon wobble" viewBox="0 0 32 32" aria-hidden="true">
+    <path class="ink" d="M20 5 C11 6 7 14 10 21 C13 27 21 28 26 23 C19 24 14 19 15 12 C15.6 8.6 17.4 6.4 20 5 Z"></path>
+  </svg>
+</button>
+
+<script>
+  const button = document.querySelector<HTMLButtonElement>(".theme-toggle");
+  const root = document.documentElement;
+
+  const label = () => {
+    const next = root.dataset.theme === "light" ? "dark" : "light";
+    button?.setAttribute("aria-label", `Switch to ${next} mode`);
+  };
+
+  label();
+
+  button?.addEventListener("click", () => {
+    const next = root.dataset.theme === "light" ? "dark" : "light";
+    root.dataset.theme = next;
+    try {
+      localStorage.setItem("theme", next);
+    } catch {
+      // Storage can be blocked; the choice then lasts for this page view only.
+    }
+    label();
+  });
+
+  // Follow the system setting until the visitor makes a choice.
+  window.matchMedia("(prefers-color-scheme: light)").addEventListener("change", (event) => {
+    let stored: string | null = null;
+    try {
+      stored = localStorage.getItem("theme");
+    } catch {
+      stored = null;
+    }
+    if (!stored) {
+      root.dataset.theme = event.matches ? "light" : "dark";
+      label();
+    }
+  });
+</script>
+
+<style>
+  .theme-toggle {
+    display: none;
+    place-items: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: none;
+    color: inherit;
+    cursor: pointer;
+    transition: transform 300ms var(--draw-ease);
+  }
+
+  :global(.js) .theme-toggle {
+    display: inline-grid;
+  }
+
+  .theme-toggle:hover {
+    transform: rotate(-20deg);
+  }
+
+  .icon {
+    grid-area: 1 / 1;
+    width: 1.9rem;
+    height: 1.9rem;
+    overflow: visible;
+    --ink-width: 2;
+  }
+
+  .moon {
+    display: none;
+  }
+
+  :global([data-theme="light"]) .sun {
+    display: none;
+  }
+
+  :global([data-theme="light"]) .moon {
+    display: block;
+  }
+</style>
