@@ -88,6 +88,8 @@
 
 html {
   -webkit-text-size-adjust: 100%;
+  /* Keep in-page jumps clear of the floating header. */
+  scroll-padding-top: 5.5rem;
 }
 
 body {

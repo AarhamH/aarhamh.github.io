@@ -39,7 +39,7 @@ const presentation: Presentation = {
     institution: "Simon Fraser University",
     degree: "B.Sc. Computer Science",
     location: "Burnaby, BC",
-    graduated: "Sep 2025",
+    graduated: "May 2026",
     coursework: [
       "Data Structures and Algorithms",
       "Database Systems",

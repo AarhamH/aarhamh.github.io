@@ -2,6 +2,7 @@
 import removeTrailingSlash from "@/utils/removeTrailingSlash";
 import presentation from "@/data/presentation";
 import ThemeToggle from "./ThemeToggle.astro";
+import { linePath } from "@/utils/rough";
 
 const pathname = removeTrailingSlash(Astro.url.pathname);
 
@@ -11,35 +12,91 @@ const links = [
 ];
 ---
 
-<header class="container site-header">
-  <a class="brand" href="/">
-    <img src="/logo.png" width="34" height="34" alt="" />
-    <span>{presentation.name.toLowerCase()}</span>
-  </a>
-  <nav aria-label="Primary">
-    <ul role="list">
-      {
-        links.map((link) => (
+<!-- The shell keeps the header's space in the page, so nothing jumps when the bar starts floating. -->
+<div class="header-shell">
+  <div class="header-bar">
+    <header class="container site-header">
+      <a class="brand" href="/" aria-label={`${presentation.name}, home`}>
+        <img src="/logo.png" width="34" height="34" alt="" />
+        <span>{presentation.name.toLowerCase()}</span>
+      </a>
+      <nav aria-label="Primary">
+        <ul role="list">
+          {
+            links.map((link) => (
+              <li>
+                <a href={link.href} class:list={{ current: link.current }} aria-current={link.current ? "page" : undefined}>
+                  {link.label}
+                </a>
+              </li>
+            ))
+          }
           <li>
-            <a href={link.href} class:list={{ current: link.current }} aria-current={link.current ? "page" : undefined}>
-              {link.label}
+            <a href={presentation.resume} target="_blank" rel="noreferrer">
+              résumé<span class="visually-hidden"> (opens in a new tab)</span>
             </a>
           </li>
-        ))
+          <li class="toggle-item">
+            <ThemeToggle />
+          </li>
+        </ul>
+      </nav>
+    </header>
+    <svg class="rule" viewBox="0 0 400 6" preserveAspectRatio="none" aria-hidden="true">
+      <path class="ink muted" d={linePath(0, 3, 400, 3, 33, 0.004)} vector-effect="non-scaling-stroke"></path>
+    </svg>
+  </div>
+</div>
+
+<script>
+  // Once the header has scrolled out of view, float a compact copy of it at the top of the
+  // screen; it drops in with a small bounce. Back near the top, it settles into place again.
+  const shell = document.querySelector<HTMLElement>(".header-shell");
+  const bar = document.querySelector<HTMLElement>(".header-bar");
+
+  if (shell && bar) {
+    let floating = false;
+    let ticking = false;
+
+    const reserve = () => {
+      if (!floating) shell.style.height = `${bar.offsetHeight}px`;
+    };
+
+    const update = () => {
+      ticking = false;
+      const height = shell.offsetHeight;
+      // Different thresholds on the way down and up, so it doesn't flicker at the boundary.
+      const shouldFloat = floating ? window.scrollY > height * 0.5 : window.scrollY > height + 40;
+      if (shouldFloat !== floating) {
+        floating = shouldFloat;
+        bar.classList.toggle("is-floating", floating);
       }
-      <li>
-        <a href={presentation.resume} target="_blank" rel="noreferrer">
-          résumé<span class="visually-hidden"> (opens in a new tab)</span>
-        </a>
-      </li>
-      <li class="toggle-item">
-        <ThemeToggle />
-      </li>
-    </ul>
-  </nav>
-</header>
+    };
+
+    reserve();
+    update();
+    window.addEventListener("resize", () => {
+      reserve();
+      update();
+    });
+    window.addEventListener(
+      "scroll",
+      () => {
+        if (!ticking) {
+          ticking = true;
+          requestAnimationFrame(update);
+        }
+      },
+      { passive: true }
+    );
+  }
+</script>
 
 <style>
+  .header-bar {
+    width: 100%;
+  }
+
   .site-header {
     display: flex;
     flex-wrap: wrap;
@@ -47,6 +104,79 @@ const links = [
     justify-content: space-between;
     gap: var(--space-2) var(--space-5);
     padding-block: var(--space-6);
+    transition: padding-block 250ms var(--draw-ease);
+  }
+
+  .rule {
+    display: none;
+    width: 100%;
+    height: 6px;
+  }
+
+  /* Floating state: pinned to the top, compact, with a solid background and a chalk line under it. */
+  .is-floating {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 20;
+    background: var(--color-bg);
+    animation: drop-in 420ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  /* The bounce overshoots below the top edge; this strip of background above the bar keeps the
+     page from showing through the gap. */
+  .is-floating::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 100%;
+    height: 16px;
+    background: var(--color-bg);
+  }
+
+  .is-floating .site-header {
+    padding-block: var(--space-2);
+  }
+
+  .is-floating .rule {
+    display: block;
+  }
+
+  .is-floating .brand img {
+    animation: wiggle 600ms ease-in-out 120ms both;
+  }
+
+  /* A soft glide down with a fade and a tiny settle at the end. */
+  @keyframes drop-in {
+    0% {
+      transform: translateY(-60%);
+      opacity: 0;
+    }
+    75% {
+      transform: translateY(2px);
+      opacity: 1;
+    }
+    100% {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+
+  @keyframes wiggle {
+    0% {
+      transform: rotate(0deg);
+    }
+    40% {
+      transform: rotate(-6deg);
+    }
+    75% {
+      transform: rotate(2deg);
+    }
+    100% {
+      transform: rotate(0deg);
+    }
   }
 
   .brand {
@@ -87,5 +217,16 @@ const links = [
   nav a.current {
     color: var(--color-chalk);
     background-size: 24px 6px;
+  }
+
+  /* On phones the floating bar keeps the name and nav on one row. */
+  @media (max-width: 30rem) {
+    .is-floating .brand span {
+      display: none;
+    }
+
+    .is-floating .site-header {
+      flex-wrap: nowrap;
+    }
   }
 </style>
