@@ -115,9 +115,9 @@ const notes = presentation.skills.map((group) => ({ label: group.label.toLowerCa
     <HobbyDoodles />
   </Section>
 
-  <Section id="contact" title="say hi" seed={16}>
+  <section id="contact" class="container contact" aria-labelledby="contact-title">
     <ContactCard />
-  </Section>
+  </section>
 </Layout>
 
 <style>
@@ -249,6 +249,10 @@ const notes = presentation.skills.map((group) => ({ label: group.label.toLowerCa
     content: "* ";
     font-family: var(--font-script);
     color: var(--color-muted);
+  }
+
+  .contact {
+    padding-top: var(--space-8);
   }
 
   .off-clock {
